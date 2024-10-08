@@ -62,6 +62,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68c7eb810f7864c2e8894cfd2c733465, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cost: 75
+  buildDelay: 0.5
+  baseMeshRenderer: {fileID: 1467398954496360665}
+  topMesgRenderer: {fileID: 3625777632226532922}
+  particleSystem: {fileID: 9147554063478782734}
 --- !u!1 &6131056645070147807
 GameObject:
   m_ObjectHideFlags: 0

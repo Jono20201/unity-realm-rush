@@ -6,49 +6,58 @@ using UnityEngine;
 [RequireComponent(typeof(Enemy))]
 public class EnemyMover : MonoBehaviour
  {
-    [SerializeField] List<Waypoint> path = new List<Waypoint>();
     [SerializeField][Range(0f, 10f)] float speed = 1f;
+
+    List<Node> path = new();
 
     private Enemy enemy;
 
-    void Start()
+    private GridManager gridManager;
+    private PathFinder pathFinder;
+
+    void Awake()
     {
+        gridManager = FindObjectOfType<GridManager>();
+        pathFinder = FindObjectOfType<PathFinder>();
         enemy = GetComponent<Enemy>();
     }
 
     void OnEnable()
     {
-        FindPath();
         ReturnToStart();
-        StartCoroutine(FollowPath());
+        RecalculatePath(true);
     }
 
-    private void FindPath()
+    private void RecalculatePath(bool resetPath = true)
     {
-        path.Clear();
+        Vector2Int coordinates;
 
-        GameObject parent = GameObject.FindGameObjectWithTag("Path");
-
-        foreach (Transform child in parent.transform)
+        if(resetPath)
         {
-            var waypoint = child.GetComponent<Waypoint>();
-
-            if(waypoint != null)
-                path.Add(waypoint);
+            coordinates = pathFinder.StartCoordinates;
+        } else {
+            coordinates = gridManager.GetCoordinatesFromPosition(transform.position);
         }
+
+        StopAllCoroutines();
+
+        path.Clear();
+        path = pathFinder.GetNewPath(coordinates);
+
+        StartCoroutine(FollowPath());
     }
 
     void ReturnToStart()
     {
-        transform.position = path[0].transform.position;
+        transform.position = gridManager.GetPositionFromCoordinates(pathFinder.StartCoordinates);
     }
 
     private IEnumerator FollowPath()
     {
-        foreach (Waypoint waypoint in path)
+        for(int i = 1; i <path.Count; i++)
         {
             var startPos = transform.position;
-            var endPos = waypoint.transform.position;
+            var endPos = gridManager.GetPositionFromCoordinates(path[i].coordinates);
             var travelPercent = 0f;
 
             transform.LookAt(endPos);
